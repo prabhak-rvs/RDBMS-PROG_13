@@ -33,19 +33,19 @@ fi
 
 echo "PASS: All four tables exist."
 
-echo "Checking Department..."
+echo "Checking Department table..."
 
 mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Department"
 
-echo "Checking Faculty..."
+echo "Checking Faculty table..."
 
 mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Faculty"
 
-echo "Checking Course..."
+echo "Checking Course table..."
 
 mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Course"
 
-echo "Checking Student..."
+echo "Checking Student table..."
 
 mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Student"
 
