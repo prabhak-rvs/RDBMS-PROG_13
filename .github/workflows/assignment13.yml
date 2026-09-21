@@ -1,5 +1,5 @@
 ```yaml
-name: Assignment 13
+name: assignment 13
 
 on:
   push:
@@ -24,37 +24,13 @@ jobs:
           --health-retries=20
 
     steps:
+      - uses: actions/checkout@v4
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install MySQL Client
+      - name: Install MySQL
         run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      - name: Execute Student SQL
-        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB < answers.sql
-
-      - name: Check Department Table
-        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Department"
-
-      - name: Check Faculty Table
-        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Faculty"
-
-      - name: Check Course Table
-        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Course"
-
-      - name: Check Student Table
-        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Student"
-
-      - name: Check Required Tables
+      - name: Run Test
         run: |
-          COUNT=$(mysql -h 127.0.0.1 -P 3306 -u root -proot -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='CollegeDB' AND table_name IN ('Department','Faculty','Course','Student')")
-          if [ "$COUNT" -ne 4 ]; then
-            echo "Required tables are missing"
-            exit 1
-          fi
-          echo "All four required tables exist"
-
-      - name: Test Completed
-        run: echo "Assignment 13 completed successfully"
+          chmod +x test.sh
+          ./test.sh
 ```
