@@ -1,6 +1,9 @@
+```yaml
 name: Assignment 13
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
 
 jobs:
   test:
@@ -21,19 +24,37 @@ jobs:
           --health-retries=20
 
     steps:
-      - name: Checkout Repository
+
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install MySQL Client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      - name: Test MySQL Connection
-        run: |
-          mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT VERSION();"
+      - name: Execute Student SQL
+        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB < answers.sql
 
-      - name: Run Tests
+      - name: Check Department Table
+        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Department"
+
+      - name: Check Faculty Table
+        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Faculty"
+
+      - name: Check Course Table
+        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Course"
+
+      - name: Check Student Table
+        run: mysql -h 127.0.0.1 -P 3306 -u root -proot CollegeDB -e "DESCRIBE Student"
+
+      - name: Check Required Tables
         run: |
-          chmod +x test.sh
-          ./test.sh
+          COUNT=$(mysql -h 127.0.0.1 -P 3306 -u root -proot -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='CollegeDB' AND table_name IN ('Department','Faculty','Course','Student')")
+          if [ "$COUNT" -ne 4 ]; then
+            echo "Required tables are missing"
+            exit 1
+          fi
+          echo "All four required tables exist"
+
+      - name: Test Completed
+        run: echo "Assignment 13 completed successfully"
+```
