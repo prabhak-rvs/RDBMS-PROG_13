@@ -1,53 +1,25 @@
-name: Assignment 13 - 3NF Normalization
+name: Assignment 13
 
 on:
 push:
-paths:
-- 'Assignment_13/**'
-- '.github/workflows/assignment13.yml'
 pull_request:
-paths:
-- 'Assignment_13/**'
-- '.github/workflows/assignment13.yml'
 
 jobs:
 test:
 runs-on: ubuntu-latest
 
 ```
-services:
-  mysql:
-    image: mysql:8.0
-    env:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: CollegeDB
-    ports:
-      - 3306:3306
-    options: >-
-      --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
-      --health-interval=10s
-      --health-timeout=5s
-      --health-retries=10
-
 steps:
-  - name: Checkout Repository
+  - name: Checkout code
     uses: actions/checkout@v4
 
-  - name: Install MySQL Client
+  - name: Start MySQL
     run: |
-      sudo apt-get update
-      sudo apt-get install -y mysql-client
+      sudo systemctl start mysql
+      mysql -u root -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
 
-  - name: Wait for MySQL
+  - name: Run Assignment Test
     run: |
-      until mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1"; do
-        echo "Waiting for MySQL..."
-        sleep 2
-      done
-
-  - name: Make Test Script Executable
-    run: chmod +x Assignment_13/test.sh
-
-  - name: Run Autograding
-    run: ./Assignment_13/test.sh
+      chmod +x Assignment_13/test.sh
+      ./Assignment_13/test.sh
 ```
