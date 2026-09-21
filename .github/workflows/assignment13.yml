@@ -1,6 +1,4 @@
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   test:
@@ -13,7 +11,10 @@ jobs:
       - name: Setup MySQL
         run: |
           sudo systemctl start mysql
-          mysql -u root -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
+          sudo mysql -e "CREATE USER IF NOT EXISTS 'grader'@'localhost' IDENTIFIED BY 'grader123';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'grader'@'localhost';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
+          mysql -u grader -pgrader123 -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
 
       - name: Run Tests
         run: |
