@@ -4,17 +4,32 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: CollegeDB
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup MySQL
+      - name: Install MySQL Client
         run: |
-          sudo systemctl start mysql
-          sudo mysql -e "CREATE USER IF NOT EXISTS 'grader'@'localhost' IDENTIFIED BY 'grader123';"
-          sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'grader'@'localhost';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
-          mysql -u grader -pgrader123 -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Test MySQL Connection
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT VERSION();"
 
       - name: Run Tests
         run: |
