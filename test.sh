@@ -11,18 +11,17 @@ echo "======================================"
 echo "Assignment 13 - 3NF Normalization"
 echo "======================================"
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" \
-  -e "DROP DATABASE IF EXISTS $DATABASE;"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" 
+-e "DROP DATABASE IF EXISTS $DATABASE;"
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" \
-  -e "CREATE DATABASE $DATABASE;"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" 
+-e "CREATE DATABASE $DATABASE;"
 
 echo "Running student SQL..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" \
-  < Assignment_13/answers.sql
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" < answers.sql
 
-echo "Checking tables..."
+echo "Checking required tables..."
 
 TABLE_COUNT=$(mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -N -e "
 SELECT COUNT(*)
@@ -32,11 +31,39 @@ AND table_name IN ('Department','Faculty','Course','Student');
 ")
 
 if [ "$TABLE_COUNT" -ne 4 ]; then
-    echo "FAIL: All four required tables were not created."
-    exit 1
+echo "FAIL: Required tables are missing."
+exit 1
 fi
 
 echo "PASS: All four tables exist."
+
+echo "Checking Department columns..."
+
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
+SELECT DepartmentID, DepartmentName
+FROM Department;
+"
+
+echo "Checking Faculty columns..."
+
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
+SELECT FacultyID, FacultyName, DepartmentID
+FROM Faculty;
+"
+
+echo "Checking Course columns..."
+
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
+SELECT CourseID, CourseName, FacultyID
+FROM Course;
+"
+
+echo "Checking Student columns..."
+
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
+SELECT StudentID, StudentName, CourseID
+FROM Student;
+"
 
 echo "Checking Primary Keys..."
 
@@ -51,9 +78,9 @@ echo "Checking Foreign Keys..."
 
 mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
 SELECT TABLE_NAME,
-       COLUMN_NAME,
-       REFERENCED_TABLE_NAME,
-       REFERENCED_COLUMN_NAME
+COLUMN_NAME,
+REFERENCED_TABLE_NAME,
+REFERENCED_COLUMN_NAME
 FROM information_schema.KEY_COLUMN_USAGE
 WHERE TABLE_SCHEMA='$DATABASE'
 AND REFERENCED_TABLE_NAME IS NOT NULL;
