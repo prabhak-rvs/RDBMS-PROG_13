@@ -3,61 +3,50 @@
 
 set -e
 
-USER="root"
-PASSWORD="root"
-HOST="127.0.0.1"
-DATABASE="CollegeDB"
-
-echo "======================================"
 echo "Assignment 13 - 3NF Normalization"
-echo "======================================"
+echo "Starting tests..."
 
-echo "Resetting database..."
+mysql -h 127.0.0.1 -u root -proot -e "DROP DATABASE IF EXISTS CollegeDB"
+mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE CollegeDB"
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -e "DROP DATABASE IF EXISTS $DATABASE"
+echo "Running answers.sql..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -e "CREATE DATABASE $DATABASE"
+mysql -h 127.0.0.1 -u root -proot CollegeDB < answers.sql
 
-echo "Running student SQL..."
+echo "Checking tables..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" < answers.sql
-
-echo "Checking required tables..."
-
-TABLE_COUNT=$(mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DATABASE' AND table_name IN ('Department','Faculty','Course','Student')")
+TABLE_COUNT=$(mysql -h 127.0.0.1 -u root -proot -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='CollegeDB' AND table_name IN ('Department','Faculty','Course','Student')")
 
 if [ "$TABLE_COUNT" -ne 4 ]; then
-    echo "FAIL: Required tables are missing."
+    echo "FAIL: All four required tables were not created."
     exit 1
 fi
 
-echo "PASS: All four tables exist."
+echo "PASS: Department, Faculty, Course and Student tables exist."
 
 echo "Checking Department table..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Department"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "DESCRIBE Department"
 
 echo "Checking Faculty table..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Faculty"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "DESCRIBE Faculty"
 
 echo "Checking Course table..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Course"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "DESCRIBE Course"
 
 echo "Checking Student table..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Student"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "DESCRIBE Student"
 
-echo "Checking Primary Keys..."
+echo "Checking primary keys..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='$DATABASE' AND CONSTRAINT_NAME='PRIMARY'"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='CollegeDB' AND CONSTRAINT_NAME='PRIMARY'"
 
-echo "Checking Foreign Keys..."
+echo "Checking foreign keys..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='$DATABASE' AND REFERENCED_TABLE_NAME IS NOT NULL"
+mysql -h 127.0.0.1 -u root -proot CollegeDB -e "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='CollegeDB' AND REFERENCED_TABLE_NAME IS NOT NULL"
 
-echo "======================================"
-echo "ALL TESTS PASSED!"
-echo "======================================"
+echo "Assignment 13 tests completed successfully."
 ```
