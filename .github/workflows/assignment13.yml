@@ -10,15 +10,15 @@ runs-on: ubuntu-latest
 
 ```
 steps:
-  - name: Checkout code
+  - name: Checkout Repository
     uses: actions/checkout@v4
 
-  - name: Start MySQL
+  - name: Setup MySQL
     run: |
-      sudo systemctl start mysql
+      sudo /etc/init.d/mysql start
       mysql -u root -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
 
-  - name: Run Assignment Test
+  - name: Run Tests
     run: |
       chmod +x Assignment_13/test.sh
       ./Assignment_13/test.sh
