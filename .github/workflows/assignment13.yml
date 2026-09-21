@@ -1,25 +1,21 @@
-name: Assignment 13
-
 on:
-push:
-pull_request:
+  push:
+  pull_request:
 
 jobs:
-test:
-runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
 
-```
-steps:
-  - name: Checkout Repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  - name: Setup MySQL
-    run: |
-      sudo /etc/init.d/mysql start
-      mysql -u root -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
+      - name: Setup MySQL
+        run: |
+          sudo systemctl start mysql
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS CollegeDB;"
 
-  - name: Run Tests
-    run: |
-      chmod +x Assignment_13/test.sh
-      ./Assignment_13/test.sh
-```
+      - name: Run Tests
+        run: |
+          chmod +x Assignment_13/test.sh
+          ./Assignment_13/test.sh
