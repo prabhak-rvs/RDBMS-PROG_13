@@ -1,0 +1,50 @@
+name: Assignment 13 - 3NF Normalization
+
+on:
+push:
+paths:
+- 'Assignment_13/**'
+- '.github/workflows/assignment13.yml'
+pull_request:
+paths:
+- 'Assignment_13/**'
+- '.github/workflows/assignment13.yml'
+
+jobs:
+autograding:
+runs-on: ubuntu-latest
+
+```
+services:
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    options: >-
+      --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+      --health-interval=10s
+      --health-timeout=5s
+      --health-retries=10
+
+steps:
+
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Wait for MySQL
+    run: |
+      for i in {1..30}; do
+        mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1" && break
+        echo "Waiting for MySQL..."
+        sleep 2
+      done
+
+  - name: Make test executable
+    run: chmod +x Assignment_13/test.sh
+
+  - name: Run Autograding
+    working-directory: Assignment_13
+    run: ./test.sh
+```
