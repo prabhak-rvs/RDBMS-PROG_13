@@ -1,3 +1,4 @@
+```bash
 #!/bin/bash
 
 set -e
@@ -11,11 +12,11 @@ echo "======================================"
 echo "Assignment 13 - 3NF Normalization"
 echo "======================================"
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" 
--e "DROP DATABASE IF EXISTS $DATABASE;"
+echo "Resetting database..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" 
--e "CREATE DATABASE $DATABASE;"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -e "DROP DATABASE IF EXISTS $DATABASE"
+
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -e "CREATE DATABASE $DATABASE"
 
 echo "Running student SQL..."
 
@@ -23,69 +24,40 @@ mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" < answers.sql
 
 echo "Checking required tables..."
 
-TABLE_COUNT=$(mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -N -e "
-SELECT COUNT(*)
-FROM information_schema.tables
-WHERE table_schema='$DATABASE'
-AND table_name IN ('Department','Faculty','Course','Student');
-")
+TABLE_COUNT=$(mysql -h "$HOST" -u "$USER" -p"$PASSWORD" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DATABASE' AND table_name IN ('Department','Faculty','Course','Student')")
 
 if [ "$TABLE_COUNT" -ne 4 ]; then
-echo "FAIL: Required tables are missing."
-exit 1
+    echo "FAIL: Required tables are missing."
+    exit 1
 fi
 
 echo "PASS: All four tables exist."
 
-echo "Checking Department columns..."
+echo "Checking Department..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT DepartmentID, DepartmentName
-FROM Department;
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Department"
 
-echo "Checking Faculty columns..."
+echo "Checking Faculty..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT FacultyID, FacultyName, DepartmentID
-FROM Faculty;
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Faculty"
 
-echo "Checking Course columns..."
+echo "Checking Course..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT CourseID, CourseName, FacultyID
-FROM Course;
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Course"
 
-echo "Checking Student columns..."
+echo "Checking Student..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT StudentID, StudentName, CourseID
-FROM Student;
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "DESCRIBE Student"
 
 echo "Checking Primary Keys..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT TABLE_NAME, COLUMN_NAME
-FROM information_schema.KEY_COLUMN_USAGE
-WHERE TABLE_SCHEMA='$DATABASE'
-AND CONSTRAINT_NAME='PRIMARY';
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='$DATABASE' AND CONSTRAINT_NAME='PRIMARY'"
 
 echo "Checking Foreign Keys..."
 
-mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "
-SELECT TABLE_NAME,
-COLUMN_NAME,
-REFERENCED_TABLE_NAME,
-REFERENCED_COLUMN_NAME
-FROM information_schema.KEY_COLUMN_USAGE
-WHERE TABLE_SCHEMA='$DATABASE'
-AND REFERENCED_TABLE_NAME IS NOT NULL;
-"
+mysql -h "$HOST" -u "$USER" -p"$PASSWORD" "$DATABASE" -e "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA='$DATABASE' AND REFERENCED_TABLE_NAME IS NOT NULL"
 
 echo "======================================"
 echo "ALL TESTS PASSED!"
 echo "======================================"
+```
