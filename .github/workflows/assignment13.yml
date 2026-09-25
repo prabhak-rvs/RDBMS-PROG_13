@@ -1,36 +1,58 @@
-```yaml
-name: assignment 13
+name: Assignment 13 - 3NF Autograding
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
+  autograding:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: CollegeDB
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=20
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Install MySQL
-        run: sudo apt-get update && sudo apt-get install -y mysql-client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
 
-      - name: Run Test
+      - name: Start MySQL
+        run: |
+          sudo systemctl start mysql
+          sudo systemctl status mysql --no-pager
+
+      - name: Configure MySQL
+        run: |
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+          sudo mysql -uroot -proot -e "SELECT VERSION();"
+
+      - name: Check Assignment Files
+        run: |
+          echo "Checking Assignment_13 files..."
+
+          if [ ! -f "Assignment_13/starter.sql" ]; then
+            echo "ERROR: Assignment_13/starter.sql not found"
+            exit 1
+          fi
+
+          if [ ! -f "Assignment_13/answers.sql" ]; then
+            echo "ERROR: Assignment_13/answers.sql not found"
+            exit 1
+          fi
+
+          if [ ! -f "Assignment_13/test.sh" ]; then
+            echo "ERROR: Assignment_13/test.sh not found"
+            exit 1
+          fi
+
+          echo "All required files found."
+
+      - name: Run Autograding
+        working-directory: Assignment_13
+        env:
+          MYSQL_PWD: root
         run: |
           chmod +x test.sh
           ./test.sh
-```
