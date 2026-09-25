@@ -13,11 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install MySQL
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-server
-
       - name: Start MySQL
         run: |
           sudo systemctl start mysql
@@ -25,8 +20,8 @@ jobs:
 
       - name: Configure MySQL
         run: |
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-          sudo mysql -uroot -proot -e "SELECT VERSION();"
+          sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+          sudo mysql -u root -proot -e "SELECT VERSION();"
 
       - name: Check Assignment Files
         run: |
